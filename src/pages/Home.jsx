@@ -16,7 +16,8 @@ export default function Home() {
             </header>
 
             <nav>
-                <Link className="link" to="/log">Personal scrimba excercises</Link>
+                <Link className="link" to="/log">Personal Logs</Link>
+                <Link className="link" to="/scrimba">Scrimba excercises</Link>
             </nav>
         </main>
     )

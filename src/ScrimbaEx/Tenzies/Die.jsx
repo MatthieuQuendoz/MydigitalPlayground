@@ -1,5 +1,7 @@
 export default function Die(props) {
+
     return (
-        <button className="die"> {props.value} </button>
+        <button onClick={props.holdDie} className={props.isHeld ? "die green" : "die"}> {props.value} </button>
+        
     )
 }
