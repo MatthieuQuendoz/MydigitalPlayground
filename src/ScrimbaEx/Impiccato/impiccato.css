@@ -1,0 +1,28 @@
+button {
+    width: 45px;
+    height: 45px;
+}
+
+.keyboardEl{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+span{
+    display: inline-flex;
+    border: 1px solid whitesmoke;
+    width: 30px;
+    height: 30px;
+    align-items: center;
+    justify-content: center;
+}
+
+.wrong {
+    background-color: brown;
+}
+
+.true {
+    background-color: green;
+}

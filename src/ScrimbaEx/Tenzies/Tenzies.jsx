@@ -3,7 +3,7 @@ import { nanoid } from "nanoid"
 import Die from "./Die"
 import { Link } from "react-router"
 import Confetti from "react-confetti"
-
+import "./tenzies.css"
 
 export default function Tenzies() {
 
@@ -90,6 +90,11 @@ export default function Tenzies() {
             <button className="roll" onClick={rollDice}> {gameWon ? "NEW GAME?" : "R O L L !" } </button>
             <p> Roll count: {count}</p>
         </div>
+
+        <nav>
+                <Link className="link" to="/">Back to the Home</Link>
+                <Link className="link" to="/scrimba">Other Excercises</Link>
+            </nav>
 
         </main>
     )
