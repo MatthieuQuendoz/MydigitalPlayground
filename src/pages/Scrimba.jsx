@@ -12,6 +12,9 @@ export default function Scrimba() {
             <nav>
                 <Link className="link" to="/Tenzies"> Tenzies </Link>
                 <Link className="link" to="/Impiccato"> L'impiccato </Link>
+                <Link className="link" to="/QuizShow"> Quiz Show </Link>
+
+                <Link className="link" to="/">Back to the Home</Link>
             </nav>
         </main>
     )

@@ -3,6 +3,7 @@ import { Link } from "react-router"
 import Confetti from "react-confetti"
 import "./impiccato.css"
 import { clsx } from "clsx"
+import  getRandomWord  from "./words"
 
 /*
 ricreazione dell'esercizio scrimba Impiccato
@@ -60,25 +61,38 @@ export default function Impiccato() {
 
     //State
     const [guessedLetters, setGuessedLetters] = React.useState([])
-    const [currentWord, setCurrentWord] = React.useState("react")
+    const [currentWord, setCurrentWord] = React.useState(getRandomWord())
+
 
     const keyboard = ["qwertyuiop","asdfghjkl","zxcvbnm"]
 
-    const wordDisplay = currentWord.split("").map(letter => {
-        return <span>   { guessedLetters.includes(letter) ? letter.toUpperCase() : "-"}   </span>
+    //DerivedValue
+    const attemptsLeft = 8 - guessedLetters.filter(letter => !currentWord.includes(letter)).length
+    const gameLost = attemptsLeft === 0;
+    const gameWin = currentWord.split("").every(letter => guessedLetters.includes(letter))
+    const gameOver = gameLost || gameWin
+
+    console.log(gameWin)
+
+    //Elements
+    const wordDisplay = currentWord.split("").map((letter, index) => {
+        return <span key={index}>   { guessedLetters.includes(letter) ? letter.toUpperCase() : "-"}   </span>
     })
 
     const keyboardElement = keyboard.map(line =>
-
-        <div>{
+        <div key={line}>{
             line.split("").map(letter => {
 
             const isWrong = !currentWord.includes(letter) && guessedLetters.includes(letter)
             const isTrue = currentWord.includes(letter)  && guessedLetters.includes(letter)
-
-
-
-            return <button className={clsx({ wrong: isWrong, true:  isTrue})} disabled={guessedLetters.includes(letter) && true} onClick={() => handleGuess(letter)}> {letter} </button>
+            return (
+                <button className={clsx("keyEl",{wrong: isWrong, true:  isTrue})} 
+                    key={letter}
+                    disabled={guessedLetters.includes(letter) && true || gameOver} 
+                    onClick={() => handleGuess(letter)}> 
+                    {letter.toUpperCase()} 
+                </button>
+            )
         })
         }</div>
     )
@@ -91,21 +105,30 @@ export default function Impiccato() {
         })
     }
 
-
+    function newGame() {
+        setGuessedLetters([])
+        setCurrentWord(getRandomWord())
+    }
 
 
     return (
         <main>
             <header>
                 <h1> L'impiccato </h1>
-                <p> Guess the Word</p>
+                <p> Guess the right Word...</p>
             </header>
 
-            <section>
-                <p> Attempts left: 8</p>
+            <section className="statusBar">
+                {gameOver && 
+                <div className="gameResult">
+                    {gameWin ? "Congrats!" : "Nice try... Loser"}
+                </div>
+
+                }
             </section>
 
-            <section>
+
+            <section className="wordDisplay">
                 {wordDisplay}
             </section>
 
@@ -113,7 +136,19 @@ export default function Impiccato() {
                 {keyboardElement}
             </section>
 
+            <section className="attemptsLeft">
+                <p> Attempts left: {attemptsLeft}</p>
+            </section>
 
+            {gameWin && <Confetti/>}
+
+            <button className="newGame" onClick={newGame}> New Game </button>
+
+
+            <nav className="link">
+                <Link className="link" to="/">Back to the Home</Link>
+                <Link className="link" to="/scrimba">Other Excercises</Link>
+            </nav>
         </main>
     )
 }

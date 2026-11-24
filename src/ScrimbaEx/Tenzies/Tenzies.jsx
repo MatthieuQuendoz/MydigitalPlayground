@@ -92,9 +92,9 @@ export default function Tenzies() {
         </div>
 
         <nav>
-                <Link className="link" to="/">Back to the Home</Link>
-                <Link className="link" to="/scrimba">Other Excercises</Link>
-            </nav>
+            <Link className="link" to="/">Back to the Home</Link>
+            <Link className="link" to="/scrimba">Other Excercises</Link>
+        </nav>
 
         </main>
     )

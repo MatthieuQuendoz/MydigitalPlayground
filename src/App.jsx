@@ -5,6 +5,8 @@ import Log from "./pages/Log"
 import Home from "./pages/Home"
 import Scrimba from "./pages/Scrimba"
 import Impiccato from "./ScrimbaEx/Impiccato/Impiccato"
+import QuizShow from "./ScrimbaEx/QuizShow/QuizShow"
+
 
 
 export default function App() {
@@ -14,9 +16,11 @@ export default function App() {
             <BrowserRouter>
                 <Routes>
                     <Route path="/" element={<Home />} />
+                    <Route path="/log" element={<Log />} />
                     <Route path="/scrimba" element={<Scrimba />} />
                     <Route path="/tenzies" element={<Tenzies />} />
                     <Route path="/impiccato" element={<Impiccato />} />
+                    <Route path="/quizShow" element={<QuizShow />} />
                 </Routes>
             </BrowserRouter>
         </main>
