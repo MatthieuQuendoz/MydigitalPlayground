@@ -3,7 +3,7 @@ import { Link } from "react-router"
 import Confetti from "react-confetti"
 import "./quizShow.css"
 import { clsx } from "clsx"
-
+import {decode} from "html-entities"
 
 /*
 SOLO PROJECT
@@ -46,18 +46,103 @@ export default function QuizShow() {
 
     //api
     React.useEffect(() => {
-    fetch("https://opentdb.com/api.php?amount=1")
+    fetch("https://opentdb.com/api.php?amount=5")
     .then(res => res.json())
     .then(data =>  {
-        setResponse(data.results[0])
-        console.log(data.results[0])
-    })
+        setResponse(data.results)
+        console.log(data.results)
+        
+        const allAnswers = data.results.map(answer => {
+           return [...answer.incorrect_answers, answer.correct_answer]
+        })
+        
+        
+        function mixAnswers() {
+            let mixAnswers = []
+            for(let j=0; j< allAnswers.length; j++) {
+                let mix = [...allAnswers[j]]
+                for(let i=0; i< mix.length; i++) {
+                    const random = Math.floor(Math.random()* mix.length)
+                    let temp = mix[random]
+                    mix[random] = mix[i]
+                    mix[i] = temp
+                }
+            mixAnswers.push(mix)
+            } 
+            return mixAnswers
+        }
+        console.log(response)
+        
+        setResponse(response => {
+            return response.map((res, index) => {
+                 return (
+                    {
+                        question: decode(res.question),
 
+                        allAnswers: mixAnswers()[index].map(answ => decode(answ)),
+
+                        correct_answer: decode(res.correct_answer)
+                    }
+                    )
+            })
+        })
+    })
     },[])
 
     //State
     const [response, setResponse] = React.useState([])
+    const [selectedAnswers, setSelectedAnswers] = React.useState([])
+
     
+
+    //Render i pulsanti della domanda - parte solo quando la fetch restituisce dati
+    const renderQuestions = response?.map((res, index) => {
+
+        const question = <p> {res.question} </p>
+
+        const renderButton = res.allAnswers.map(item => {
+
+        const isClicked = selectedAnswers[index] !== undefined
+
+        const isTrue = item === response[index].correct_answer && isClicked
+        const isWrong = item != response[index].correct_answer && item === selectedAnswers[index]
+    
+            const button = (
+                isClicked ? 
+
+                <button 
+                key={item}
+                className={clsx("choice",{wrong: isWrong, true:  isTrue})}> 
+                    {item} 
+                </button>
+
+                :
+
+                <button  
+                key={item}
+                className="choice"
+                onClick={() => handleClickAnswers(item, index)}> 
+                    {item} 
+                </button>
+            )
+            return button
+        }) 
+        return  <div key={index}>
+                    {question} 
+                    {renderButton}
+                    {index < response.length-1 && <hr />}
+                </div>
+    })
+    
+     console.log(renderQuestions)
+
+        function handleClickAnswers(res, index) {
+            setSelectedAnswers(prev => {
+                const next = [...prev]
+                next[index] = res 
+                return next
+            })
+        }    
 
     return (
         <main>
@@ -66,7 +151,13 @@ export default function QuizShow() {
                 <p> Can you guess them all? You've got 60 seconds...</p>
             </header>
 
-           <p> {response.question}</p> 
+
+            <section className="quiz-questions">
+                <div className="content">
+                    {response.length > 0 && renderQuestions}
+                </div>
+            </section>
+            
 
             <nav className="link">
                 <Link className="link" to="/">Back to the Home</Link>
