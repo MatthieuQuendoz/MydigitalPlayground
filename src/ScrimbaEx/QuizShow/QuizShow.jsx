@@ -44,111 +44,113 @@ Ovviamente i cinque bottoni, cioè una volta che l'utente clicca un bottone, que
 
 export default function QuizShow() {
 
-    //api
-    React.useEffect(() => {
-    fetch("https://opentdb.com/api.php?amount=5")
-    .then(res => res.json())
-    .then(data =>  {
-        setResponse(data.results)
-        console.log(data.results)
-        
-        const allAnswers = data.results.map(answer => {
-           return [...answer.incorrect_answers, answer.correct_answer]
-        })
-        
-        
-        function mixAnswers() {
-            let mixAnswers = []
-            for(let j=0; j< allAnswers.length; j++) {
-                let mix = [...allAnswers[j]]
-                for(let i=0; i< mix.length; i++) {
-                    const random = Math.floor(Math.random()* mix.length)
-                    let temp = mix[random]
-                    mix[random] = mix[i]
-                    mix[i] = temp
-                }
-            mixAnswers.push(mix)
-            } 
-            return mixAnswers
-        }
-        console.log(response)
-        
-        setResponse(response => {
-            return response.map((res, index) => {
-                 return (
-                    {
-                        question: decode(res.question),
+    function newGame() {
 
-                        allAnswers: mixAnswers()[index].map(answ => decode(answ)),
+        setSelectedAnswers([])
+        setTime(0)
 
-                        correct_answer: decode(res.correct_answer)
+        fetch("https://opentdb.com/api.php?amount=5")
+            .then(res => res.json())
+            .then(data => {
+                setResponse(data.results)
+                const allAnswers = data.results.map(answer => {
+                    return [...answer.incorrect_answers, answer.correct_answer]
+                })           
+
+            function mixAnswers() {
+                let mixAnswers = []
+                for(let j=0; j< allAnswers.length; j++) {
+                    let mix = [...allAnswers[j]]
+                    for(let i=0; i< mix.length; i++) {
+                        const random = Math.floor(Math.random()* mix.length)
+                        let temp = mix[random]
+                        mix[random] = mix[i]
+                        mix[i] = temp
                     }
-                    )
+                mixAnswers.push(mix)
+                } 
+                return mixAnswers
+            }
+
+            setResponse(response => {
+                return response.map((res, index) => {
+                    return ({
+                        question: decode(res.question),
+                        allAnswers: mixAnswers()[index].map(answ => decode(answ)),
+                        correct_answer: decode(res.correct_answer)
+                    })
+                })
             })
         })
-    })
-    },[])
+        }
 
     //State
     const [response, setResponse] = React.useState([])
     const [selectedAnswers, setSelectedAnswers] = React.useState([])
+    const [time, setTime] = React.useState(0)
 
+
+    React.useEffect(() => {
+        newGame()
+    },[])
+
+    React.useEffect(() => {
+            
+        const id = setInterval(() => setTime(prev => Math.min(prev +1, 60)), 1000)
+        return() => clearInterval(id)
     
+    },[])
 
     //Render i pulsanti della domanda - parte solo quando la fetch restituisce dati
     const renderQuestions = response?.map((res, index) => {
 
         const question = <p> {res.question} </p>
-
         const renderButton = res.allAnswers.map(item => {
 
-        const isClicked = selectedAnswers[index] !== undefined
-
-        const isTrue = item === response[index].correct_answer && isClicked
-        const isWrong = item != response[index].correct_answer && item === selectedAnswers[index]
+            const isClicked = selectedAnswers[index] !== undefined
+            const isTrue = item === response[index].correct_answer && isClicked
+            const isWrong = item != response[index].correct_answer && item === selectedAnswers[index]
     
-            const button = (
-                isClicked ? 
-
+            const button = ( isClicked ? 
                 <button 
                 key={item}
-                className={clsx("choice",{wrong: isWrong, true:  isTrue})}> 
+                className={clsx("choice",{wrong: isWrong, true:  isTrue})}
+                disabled={time < 60 ? false : true}> 
                     {item} 
                 </button>
-
                 :
-
-                <button  
+                <button
                 key={item}
                 className="choice"
-                onClick={() => handleClickAnswers(item, index)}> 
+                onClick={() => handleClickAnswers(item, index)}
+                disabled={time < 60 ? false : true}> 
                     {item} 
                 </button>
-            )
+                )
             return button
         }) 
-        return  <div key={index}>
+        return <div key={index}>
                     {question} 
                     {renderButton}
                     {index < response.length-1 && <hr />}
                 </div>
     })
     
-     console.log(renderQuestions)
+    function handleClickAnswers(res, index) {
+        setSelectedAnswers(prev => {
+            const next = [...prev]
+            next[index] = res 
+            return next
+        })
+    }
 
-        function handleClickAnswers(res, index) {
-            setSelectedAnswers(prev => {
-                const next = [...prev]
-                next[index] = res 
-                return next
-            })
-        }    
 
     return (
         <main>
             <header>
                 <h1> Quiz Show </h1>
                 <p> Can you guess them all? You've got 60 seconds...</p>
+                <p>{time < 60 ? time : "timeOut"}</p>
             </header>
 
 
@@ -157,6 +159,8 @@ export default function QuizShow() {
                     {response.length > 0 && renderQuestions}
                 </div>
             </section>
+
+            <button onClick={newGame}> Start a new game</button>
             
 
             <nav className="link">
